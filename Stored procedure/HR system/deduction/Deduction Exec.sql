@@ -1,0 +1,13 @@
+
+-- Exec manual deduction
+DECLARE @msg NVARCHAR(200);
+
+EXEC sp_InsertManualDeduction
+    @emp_id = 3,
+    @deduction_type = N'Late arrival',
+    @amount = 500,
+    @Message = @msg OUTPUT;
+
+SELECT @msg AS Result;
+----------------------------------------------------------------------
+EXEC sp_HandleMissingCheckout_SetBased

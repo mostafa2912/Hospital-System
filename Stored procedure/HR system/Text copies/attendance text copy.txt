@@ -1,0 +1,77 @@
+-- attendence SP
+CREATE OR ALTER PROCEDURE sp_CheckInEmployee
+  @emp_id INT,
+  @checkin DATETIME = NULL,  
+  @Message NVARCHAR(200) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @checkin IS NULL
+        SET @checkin = GETDATE();
+
+    IF NOT EXISTS (SELECT 1 FROM Employee WHERE emp_id = @emp_id)
+    BEGIN
+        SET @Message = N'Employee not found in the system';
+        RETURN;
+    END
+
+	    IF EXISTS (SELECT 1 FROM Employee WHERE emp_id = @emp_id AND status = 'Inactive')
+    BEGIN
+        SET @Message = N'Employee is inactive and cannot check in';
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM Attendance WHERE emp_id = @emp_id AND attend_date = CAST(@checkin AS DATE))
+    BEGIN
+        SET @Message = N'Employee already checked in today';
+        RETURN;
+    END
+
+    INSERT INTO Attendance (emp_id, checkin, checkout, attend_date)
+    VALUES (@emp_id, @checkin, NULL, CAST(@checkin AS DATE));
+
+    SET @Message = N'Check-in recorded successfully';
+END;
+-----------------------------------------------------------------------------------------------------
+CREATE OR ALTER PROCEDURE sp_CheckOutEmployee
+  @emp_id INT,
+  @checkout DATETIME = NULL, 
+  @Message NVARCHAR(200) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @checkout IS NULL
+        SET @checkout = GETDATE();
+
+    DECLARE @today DATE = CAST(@checkout AS DATE);
+
+    IF NOT EXISTS (SELECT 1 FROM Attendance WHERE emp_id = @emp_id AND attend_date = @today)
+    BEGIN
+        SET @Message = N'No check-in found for this employee today';
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM Attendance WHERE emp_id = @emp_id AND attend_date = @today AND checkout IS NOT NULL)
+    BEGIN
+        SET @Message = N'Employee already checked out today';
+        RETURN;
+    END
+
+    UPDATE Attendance
+    SET checkout = @checkout
+    WHERE emp_id = @emp_id AND attend_date = @today;
+
+     DECLARE @deductionMsg NVARCHAR(200);
+     EXEC sp_CalculateAttendanceDeduction 
+         @emp_id = @emp_id,
+         @attend_date = @today,
+         @Message = @deductionMsg OUTPUT;
+
+    SET @Message = N'Checkout recorded successfully';
+END;
+
+
+
+

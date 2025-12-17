@@ -1,0 +1,42 @@
+-- insert Exec example
+DECLARE @ResultMessage NVARCHAR(200);
+EXEC sp_InsertNewEmployee
+    @fname = 'shady',
+    @lname = 'Mohamed',
+    @ssn = '29202551234567',
+    @gender = 'Male',
+    @birth_date = '1990-01-01',
+    @phone = '01294508877',
+    @email = 'shady2@example.com',
+    @salary = 15000,
+    @type = 'nurse',
+    @dept_id = 10,
+    @Message = @ResultMessage OUTPUT;
+SELECT @ResultMessage AS Message;
+
+-----------------------------------------------------------------------------------------------------------------
+-- Exec for update 
+DECLARE @msg NVARCHAR(200);
+EXEC sp_UpdateEmployee
+    @emp_id = 99,
+    @fname = 'shady',
+    @lname = 'Mohamed',
+    @ssn = '29823653587632',  -- هيتبعت لكن مش هيتغير
+    @gender = 'Male',
+    @birth_date = '1990-01-01',
+    @phone = '01023654789',
+    @email = 'shady@example.com',
+    @salary = 17000,
+    @type = 'nurse',
+    @dept_id = 10,
+    @Message = @msg OUTPUT;
+SELECT @msg AS UpdateMessage;
+
+--------------------------------------------------------------------------------------------------------
+-- Exec for delete 
+DECLARE @msg NVARCHAR(200);
+EXEC sp_DeleteEmployee
+    @emp_id = 105,
+    @Message = @msg OUTPUT;
+
+SELECT @msg AS DeleteMessage;

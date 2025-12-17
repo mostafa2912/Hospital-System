@@ -1,0 +1,13 @@
+1,normal,500
+2,normal,500
+3,normal,500
+4,normal,1000
+5,normal,1000
+6,normal,1000
+7,vip,1500
+8,vip,1500
+9,emergency,500
+10,icu,5000
+11,surgey,5000
+12,surgey,7000
+13,surgery,10000

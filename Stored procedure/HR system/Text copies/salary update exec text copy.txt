@@ -1,0 +1,5 @@
+EXEC sp_UpdateEmployeeSalary_ByID @emp_id = 104, @increase_percent = 10;
+--------------------------------------------------------------------------
+EXEC sp_UpdateEmployeeSalary_ByDept @dept_id = 1, @increase_percent = 10;
+--------------------------------------------------------------------------
+EXEC sp_AnnualSalaryIncrease;

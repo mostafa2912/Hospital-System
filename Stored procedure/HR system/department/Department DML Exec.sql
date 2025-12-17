@@ -1,0 +1,24 @@
+--insert new department Exec
+DECLARE @msg NVARCHAR(200);
+EXEC sp_AddDepartment
+    @dept_name = N'dentist',
+    @manager_id = 10,
+    @Message = @msg OUTPUT;
+SELECT @msg AS Result;
+
+-------------------------------------------------------------------------
+-- update Department Exec
+DECLARE @Msg NVARCHAR(200);
+EXEC sp_UpdateDepartment 
+    @dept_id = 18, 
+    @dept_name = N'Cardiology - Updated', 
+    @manager_id = 5, 
+    @Message = @Msg OUTPUT;
+SELECT @Msg AS Result;
+-------------------------------------------------------------------------------
+--delete department Exec
+DECLARE @Msg NVARCHAR(200);
+EXEC sp_DeleteDepartment 
+    @dept_id = 17,
+    @Message = @Msg OUTPUT;
+SELECT @Msg AS Result;

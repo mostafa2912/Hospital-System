@@ -1,0 +1,116 @@
+CREATE OR ALTER PROCEDURE sp_AddDepartment
+	@dept_name NVARCHAR(100),
+    @manager_id INT = NULL,
+    @Message NVARCHAR(200) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+	DECLARE @new_dept_id INT;
+
+    IF EXISTS (SELECT 1 FROM Department WHERE dept_name = @dept_name)
+    BEGIN
+        SET @Message = N'This department name already exists';
+        RETURN;
+    END
+
+    IF @manager_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Employee WHERE emp_id = @manager_id)
+    BEGIN
+        SET @Message = N'Manager ID not found in Employee table';
+        RETURN;
+    END
+
+	IF NOT EXISTS (SELECT 1 FROM Employee WHERE emp_id = @manager_id AND status = 'Active')
+    BEGIN
+        SET @Message = N'This manager is inactive can not be a manager';
+        RETURN;
+    END
+
+    IF @manager_id IS NOT NULL AND EXISTS (SELECT 1 FROM Department WHERE manager_id = @manager_id)
+    BEGIN
+        SET @Message = N'This manager is already assigned to another department';
+        RETURN;
+    END
+
+	SELECT @new_dept_id = ISNULL(MAX(dept_id), 0) + 1 FROM Department;
+
+    INSERT INTO Department (dept_id, dept_name, manager_id)
+    VALUES (@new_dept_id, @dept_name, @manager_id);
+
+    SET @Message = N'Department added successfully';
+END;
+go
+------------------------------------------------------------------------------------------------------
+CREATE OR ALTER PROCEDURE sp_UpdateDepartment
+    @dept_id INT,
+    @dept_name NVARCHAR(100),
+    @manager_id INT = NULL,
+    @Message NVARCHAR(200) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM Department WHERE dept_id = @dept_id)
+    BEGIN
+        SET @Message = N'Department not found';
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM Department WHERE dept_name = @dept_name AND dept_id <> @dept_id)
+    BEGIN
+        SET @Message = N'This department name is already used by another department';
+        RETURN;
+    END
+
+    IF @manager_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Employee WHERE emp_id = @manager_id)
+    BEGIN
+        SET @Message = N'Manager ID not found in Employee table';
+        RETURN;
+    END
+
+		IF NOT EXISTS (SELECT 1 FROM Employee WHERE emp_id = @manager_id AND status = 'Active')
+    BEGIN
+        SET @Message = N'This manager is inactive can not be a manager';
+        RETURN;
+    END
+
+    IF @manager_id IS NOT NULL AND EXISTS (SELECT 1 FROM Department WHERE manager_id = @manager_id)
+    BEGIN
+        SET @Message = N'This manager is already assigned to another department';
+        RETURN;
+    END
+
+    UPDATE Department
+    SET dept_name = @dept_name,
+        manager_id = @manager_id
+    WHERE dept_id = @dept_id;
+
+    SET @Message = N'Department updated successfully';
+END;
+go
+-----------------------------------------------------------------------------------------------------------------
+CREATE OR ALTER PROCEDURE sp_DeleteDepartment
+    @dept_id INT,
+    @Message NVARCHAR(200) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM Department WHERE dept_id = @dept_id)
+    BEGIN
+        SET @Message = N'Department not found';
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM Employee WHERE dept_id = @dept_id)
+    BEGIN
+        SET @Message = N'Cannot delete department with assigned employees';
+        RETURN;
+    END
+
+    DELETE FROM Department WHERE dept_id = @dept_id;
+
+    SET @Message = N'Department deleted successfully';
+END;
+
+
+

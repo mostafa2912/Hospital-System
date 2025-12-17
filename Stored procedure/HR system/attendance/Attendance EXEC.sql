@@ -1,0 +1,20 @@
+--Exec for checkin
+
+DECLARE @ResultMessage NVARCHAR(200);
+EXEC sp_CheckInEmployee
+    @emp_id = 44,
+    @Message = @ResultMessage OUTPUT;
+SELECT @ResultMessage AS Message;
+
+------------------------------------------------------------------------------------------------------
+--Exec for checkout
+DECLARE @ResultMessage NVARCHAR(200);
+EXEC sp_CheckOutEmployee
+    @emp_id = 44,
+    @Message = @ResultMessage OUTPUT;
+
+SELECT @ResultMessage AS Message;
+
+---------------------------------------------------------------------------------------------------------
+
+

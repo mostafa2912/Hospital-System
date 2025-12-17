@@ -1,0 +1,104 @@
+CREATE OR ALTER PROCEDURE sp_UpdateEmployeeSalary_ByID
+    @emp_id INT,
+    @increase_percent DECIMAL(5,2)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Message NVARCHAR(200);
+
+    IF NOT EXISTS (SELECT 1 FROM Employee WHERE emp_id = @emp_id)
+    BEGIN
+        SET @Message = N'Employee does not exist.';
+        SELECT @Message AS Message;
+        RETURN;
+    END
+
+    IF NOT EXISTS (SELECT 1 FROM Employee WHERE emp_id = @emp_id AND status = 'Active')
+    BEGIN
+        SET @Message = N'Employee exists but is not active.';
+        SELECT @Message AS Message;
+        RETURN;
+    END
+
+    IF @increase_percent <= 0
+    BEGIN
+        SET @Message = N'Increase percent must be greater than zero.';
+        SELECT @Message AS Message;
+        RETURN;
+    END
+
+    -- Update salary
+    UPDATE Employee
+    SET salary = salary + (salary * @increase_percent / 100)
+    WHERE emp_id = @emp_id;
+
+    SET @Message = N'Salary has been successfully increased for the employee.';
+    SELECT @Message AS Message;
+END
+go
+---------------------------------------------------------------------------------------------------------
+CREATE OR ALTER PROCEDURE sp_UpdateEmployeeSalary_ByDept
+    @dept_id INT,
+    @increase_percent DECIMAL(5,2)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Message NVARCHAR(200);
+
+    IF NOT EXISTS (SELECT 1 FROM Department WHERE dept_id = @dept_id)
+    BEGIN
+        SET @Message = N'Department does not exist.';
+        SELECT @Message AS Message;
+        RETURN;
+    END
+
+    IF NOT EXISTS (SELECT 1 FROM Employee WHERE dept_id = @dept_id AND status = 'Active')
+    BEGIN
+        SET @Message = N'No active employees found in this department.';
+        SELECT @Message AS Message;
+        RETURN;
+    END
+
+    IF @increase_percent <= 0
+    BEGIN
+        SET @Message = N'Increase percent must be greater than zero.';
+        SELECT @Message AS Message;
+        RETURN;
+    END
+
+    UPDATE Employee
+    SET salary = salary + (salary * @increase_percent / 100)
+    WHERE dept_id = @dept_id AND status = 'Active';
+
+    SET @Message = N'Salaries have been successfully increased for this department.';
+    SELECT @Message AS Message;
+END
+go
+---------------------------------------------------------------------------------------------------------
+CREATE OR ALTER PROCEDURE sp_AnnualSalaryIncrease
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Message NVARCHAR(200);
+
+    IF NOT EXISTS (SELECT 1 FROM Employee WHERE status = 'Active')
+    BEGIN
+        SET @Message = N'No active employees found to apply annual increase.';
+        SELECT @Message AS Message;
+        RETURN;
+    END
+
+    -- Update salaries with 10% increase
+    UPDATE Employee
+    SET salary = salary + (salary * 0.10)
+    WHERE status = 'Active';
+
+    SET @Message = N'Annual salary increase of 10% has been successfully applied.';
+    SELECT @Message AS Message;
+END
+
+
+
